@@ -22,15 +22,13 @@ jobs:
           cache: 'sbt'
       -
         name: Run Test
-        run: |
-          sbt clean coverage ${{ matrix.project }}/test
-          ls -alF ./${{matrix.project}}/target/scala-2.13
+        run: sbt clean coverage ${{ matrix.project }}/test
       -
         uses: a7ul/tar-action@v1.1.2
         with:
           command: c
           cwd: .
-          path: ./${{ matrix.project }}/target/scala-2.13/scoverage-data
+          files: ./${{ matrix.project }}/target/scala-2.13/scoverage-data
           outPath: ${{ matrix.project }}.tar.gz
       -
         name: Upload Coverage
@@ -67,13 +65,13 @@ jobs:
         with:
           command: x
           cwd: .
-          files: scoverage-${{ github.sha }}-child1
+          files: child1.tar.gz
       -
         uses: a7ul/tar-action@v1.1.2
         with:
           command: x
           cwd: .
-          files: scoverage-${{ github.sha }}-child2
+          files: child2.tar.gz
       -
         name: Run Test
         run: sbt coverageAggregate
