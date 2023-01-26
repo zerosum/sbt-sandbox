@@ -2,13 +2,13 @@ ThisBuild / scalaVersion := "2.13.10"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "dev.zerosum"
 
-lazy val root = (project in file("."))
-  .enablePlugins(JavaAppPackaging)
+lazy val root = (project in file(".")).aggregate(child1, child2)
+
+lazy val child1 = (project in file("./child1"))
   .settings(
-    Docker / mainClass    := Some("dev.zerosum.Main"),
-    name                  := "sbt-sandbox",
-    dockerBaseImage       := "openjdk:11-jdk-slim",
-    dockerBuildxPlatforms := Seq("linux/amd64", "linux/arm64"),
-    Docker / packageName  := "z3r05um/sandbox",
-    dockerUpdateLatest    := true
+    Settings.baseSettings
+  )
+lazy val child2 = (project in file("./child2"))
+  .settings(
+    Settings.baseSettings
   )
