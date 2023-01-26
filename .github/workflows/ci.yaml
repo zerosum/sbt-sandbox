@@ -1,3 +1,76 @@
 name: ci
 
 on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: ['child1', 'child2']
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11.0.12'
+          distribution: 'temurin'
+          cache: 'sbt'
+      -
+        name: Run Test
+        run: sbt clean coverage ${{ matrix.project }}/test
+      -
+        uses: a7ul/tar-action@v1.1.2
+        with:
+          command: c
+          cwd: .
+          path: ./${{ matrix.project }}/target/scala-2.13/scoverage-data
+          outPath: ${{ matrix.project }}.tar.gz
+      -
+        name: Upload Coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: scoverage-${{ github.sha }}-${{ matrix.project }}
+          retention-days: 1
+          path: ${{ matrix.project }}.tar.gz
+  
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11.0.12'
+          distribution: 'temurin'
+          cache: 'sbt'
+      -
+        uses: actions/download-artifact@v3
+        with:
+          name: scoverage-${{ github.sha }}-child1
+      -
+        uses: actions/download-artifact@v3
+        with:
+          name: scoverage-${{ github.sha }}-child2
+      -
+        uses: a7ul/tar-action@v1.1.2
+        with:
+          command: x
+          cwd: .
+          files: scoverage-${{ github.sha }}-child1
+      -
+        uses: a7ul/tar-action@v1.1.2
+        with:
+          command: x
+          cwd: .
+          files: scoverage-${{ github.sha }}-child2
+      -
+        name: Run Test
+        run: sbt coverageAggregate
