@@ -39,6 +39,7 @@ jobs:
           path: ${{ matrix.project }}.tar.gz
   
   coverage:
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       -
