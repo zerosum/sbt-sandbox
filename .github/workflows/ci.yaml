@@ -22,7 +22,9 @@ jobs:
           cache: 'sbt'
       -
         name: Run Test
-        run: sbt clean coverage ${{ matrix.project }}/test
+        run: |
+          sbt clean coverage ${{ matrix.project }}/test
+          ls -alF ./${{matrix.project}}/target
       -
         uses: a7ul/tar-action@v1.1.2
         with:
